@@ -1,0 +1,29 @@
+{
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "jsonschema": "^1.4.1"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --minify --dts --format cjs,esm --out-dir dist",
+    "publish": "npm i @risuai/ccardlib"
+  },
+  "name": "@risuai/ccardlib",
+  "version": "0.1.2",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "description": "library for handling character cards formats",
+  "main": "dist/index.js",
+  "author": "kwaroran",
+  "types": "./dist/index.d.ts"
+}
