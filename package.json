@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --minify --dts --format cjs,esm --out-dir dist",
-    "publish": "npm i @risuai/ccardlib"
+    "publish": "npm publish --access public"
   },
   "name": "@risuai/ccardlib",
   "version": "0.1.2",
