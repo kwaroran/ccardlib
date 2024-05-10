@@ -6,7 +6,6 @@ export const CCardLib = {
     convert: convertCharacterCardVersion
 }
 
-
 export type CharacterCardV2 = {
     spec: 'chara_card_v2'
     spec_version: '2.0' // May 8th addition

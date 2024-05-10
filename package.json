@@ -1,17 +1,15 @@
 {
   "devDependencies": {
     "tsup": "^8.0.2",
-    "typescript": "^5.4.5"
-  },
-  "dependencies": {
+    "typescript": "^5.4.5",
     "ajv": "^8.13.0"
   },
+  "dependencies": {},
   "scripts": {
-    "build": "tsup src/index.ts --minify --dts --format cjs,esm --out-dir dist",
-    "publish": "npm publish --access public"
+    "build": "tsup src/index.ts --minify --dts --format cjs,esm --out-dir dist"
   },
   "name": "@risuai/ccardlib",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "license": "MIT",
   "type": "module",
   "exports": {
