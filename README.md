@@ -7,7 +7,7 @@ CCardLib is a library for handling character card format, used in roleplay.
 ```
 npm install @risuai/ccardlib
 yarn add @risuai/ccardlib
-pnpm add @risuai/ccardlib
+pnpm install @risuai/ccardlib
 ```
 
 ## API
