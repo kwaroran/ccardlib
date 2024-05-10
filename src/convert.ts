@@ -3,14 +3,14 @@ import { checkCharacterCardVersion } from "./check.js";
 
 type ConvertCharacterCardVersionResult<T> = T extends 'v1' ? CharacterCardV1 : T extends 'v2' ? CharacterCardV2 : CharacterCardV3;
 
-export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: CharacterCardV1|CharacterCardV2|CharacterCardV3, arg: {
+export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: CharacterCardV1|CharacterCardV2|CharacterCardV3, args: {
     from?: 'v1'|'v2'|'v3',
     to: T
 }): ConvertCharacterCardVersionResult<T>{
 
     let from:'v1'|'v2'|'v3'
-    let to:T = arg.to;
-    if(!arg.from){
+    let to:T = args.to;
+    if(!args.from){
         const checkResult = checkCharacterCardVersion(data);
         if(checkResult === 'unknown'){
             throw new Error('Invalid character card data');
@@ -18,7 +18,7 @@ export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: Char
         from = checkResult;
     }
     else{
-        from = arg.from;
+        from = args.from;
     }
 
     if(from === to){

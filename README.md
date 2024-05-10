@@ -32,12 +32,12 @@ const data = {
 console.log(CCardLib.check(data)) // 'v2'
 ```
 
-#### `CCardLib.convert(data, arg) -> Object`
+#### `CCardLib.convert(data, args) -> Object`
 
 Convert the character card to the specified version.
 
 - `data` - The data to convert.
-- `arg`
+- `args`
     - `to` - The version to convert to. must be `'v1'`, `'v2'`, or `'v3'`.
     - `from` - The version to convert from. must be `'v1'`, `'v2'`, or `'v3'`. (optional)
 
