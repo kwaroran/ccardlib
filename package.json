@@ -11,7 +11,7 @@
     "publish": "npm publish --access public"
   },
   "name": "@risuai/ccardlib",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "type": "module",
   "exports": {

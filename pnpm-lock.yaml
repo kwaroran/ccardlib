@@ -11,9 +11,6 @@ importers:
       ajv:
         specifier: ^8.13.0
         version: 8.13.0
-      jsonschema:
-        specifier: ^1.4.1
-        version: 1.4.1
     devDependencies:
       tsup:
         specifier: ^8.0.2
@@ -472,9 +469,6 @@ packages:
 
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
-
-  jsonschema@1.4.1:
-    resolution: {integrity: sha512-S6cATIPVv1z0IlxdN+zUk5EPjkGCdnhN4wVSBlvoUO1tOLJootbo9CquNJmbIh4yikWHiUedhRYrNPn1arpEmQ==}
 
   lilconfig@3.1.1:
     resolution: {integrity: sha512-O18pf7nyvHTckunPWCV1XUNXU1piu01y2b7ATJ0ppkUkk8ocqVWBrYjJBCwHDjD/ZWcfyrA0P4gKhzWGi5EINQ==}
@@ -1087,8 +1081,6 @@ snapshots:
   joycon@3.1.1: {}
 
   json-schema-traverse@1.0.0: {}
-
-  jsonschema@1.4.1: {}
 
   lilconfig@3.1.1: {}
 
