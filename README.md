@@ -1,6 +1,6 @@
 # CCardLib
 
-CCardLib is a library for handling character card format, used in roleplay.
+CCardLib is a library for handling character card format, used in roleplay. can be used both in the browser and in Node.js.
 
 ## Installation
 
