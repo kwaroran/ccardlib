@@ -6,7 +6,7 @@ import compiledV2 from './compiled/v2.js'
 import compiledV3 from './compiled/v3.js'
 
 export function checkCharacterCardVersion(data: any): 'v1'|'v2'|'v3'|'unknown'{
-
+    data = removeNullValues(data);
     if(compiledV3(data)){
         return 'v3'
     }
@@ -18,4 +18,16 @@ export function checkCharacterCardVersion(data: any): 'v1'|'v2'|'v3'|'unknown'{
     }
 
     return 'unknown';
+}
+
+function removeNullValues(obj: any){
+    for (let key in obj) {
+        if (obj[key] === null) {
+            delete obj[key];
+        }
+        if (typeof obj[key] === 'object') {
+            removeNullValues(obj[key]);
+        }
+    }
+    return obj;
 }

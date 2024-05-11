@@ -1,3 +1,6 @@
+//This file is for the JSON schemas for the character card data
+//It isn't used in the final code, but it is used to generate the compiled schemas
+
 export const CCSchemas = {
     V1: {
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -33,7 +36,7 @@ export const CCSchemas = {
                     "first_mes",
                     "mes_example"
                 ],
-                "additionalProperties": false
+                "additionalProperties": true
             }
         }
     },
@@ -123,7 +126,7 @@ export const CCSchemas = {
                             "character_version",
                             "extensions"
                         ],
-                        "additionalProperties": false
+                        "additionalProperties": true
                     }
                 },
                 "required": [
@@ -131,7 +134,7 @@ export const CCSchemas = {
                     "spec_version",
                     "data"
                 ],
-                "additionalProperties": false
+                "additionalProperties": true
             },
             "CharacterBook": {
                 "type": "object",
@@ -219,7 +222,7 @@ export const CCSchemas = {
                                 "enabled",
                                 "insertion_order"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": true
                         }
                     }
                 },
@@ -227,7 +230,7 @@ export const CCSchemas = {
                     "extensions",
                     "entries"
                 ],
-                "additionalProperties": false
+                "additionalProperties": true
             }
         }
     },
@@ -324,7 +327,7 @@ export const CCSchemas = {
                                         "name",
                                         "ext"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": true
                                 }
                             },
                             "nickname": {
@@ -372,7 +375,7 @@ export const CCSchemas = {
                             "creator_notes",
                             "group_only_greetings"
                         ],
-                        "additionalProperties": false
+                        "additionalProperties": true
                     }
                 },
                 "required": [
@@ -380,7 +383,7 @@ export const CCSchemas = {
                     "spec_version",
                     "data"
                 ],
-                "additionalProperties": false
+                "additionalProperties": true
             },
             "Lorebook": {
                 "type": "object",
@@ -414,7 +417,7 @@ export const CCSchemas = {
                     "extensions",
                     "entries"
                 ],
-                "additionalProperties": false
+                "additionalProperties": true
             },
             "LorebookEntry": {
                 "type": "object",
@@ -483,7 +486,7 @@ export const CCSchemas = {
                     "insertion_order",
                     "use_regex"
                 ],
-                "additionalProperties": false
+                "additionalProperties": true
             }
         }
     }
