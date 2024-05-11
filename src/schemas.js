@@ -246,8 +246,7 @@ export const CCSchemas = {
                         "const": "chara_card_v3"
                     },
                     "spec_version": {
-                        "type": "string",
-                        "const": "3.0"
+                        "type": "string"
                     },
                     "data": {
                         "type": "object",
