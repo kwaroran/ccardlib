@@ -38,8 +38,10 @@ Convert the character card to the specified version.
 
 - `data` - The data to convert.
 - `args`
-    - `to` - The version to convert to. must be `'v1'`, `'v2'`, or `'v3'`.
-    - `from` - The version to convert from. must be `'v1'`, `'v2'`, or `'v3'`. (optional)
+  - `to` - The version to convert to. must be `'v1'`, `'v2'`, or `'v3'`.
+  - `from` - The version to convert from. must be `'v1'`, `'v2'`, or `'v3'`. (optional)
+  - `options` - The options for the conversion. (optional)
+    - `convertRisuFields` - Convert the fields that are specific to RisuAI. (default: `true`)
 
 example:
 
