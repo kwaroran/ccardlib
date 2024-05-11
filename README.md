@@ -42,7 +42,7 @@ Both forward and backward conversion are possible. however, backward conversion 
   - `to` - The version to convert to. must be `'v1'`, `'v2'`, or `'v3'`.
   - `from` - The version to convert from. must be `'v1'`, `'v2'`, or `'v3'`. (optional)
   - `options` - The options for the conversion. (optional)
-    - `convertRisuFields` - Convert the fields that are specific to RisuAI. (default: `true`)
+    - `convertRisuFields` - Convert the fields that are specific to RisuAI. (default: `false`)
 
 example:
 

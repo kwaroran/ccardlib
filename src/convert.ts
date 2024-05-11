@@ -15,7 +15,7 @@ export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: Char
     let from:'v1'|'v2'|'v3'
     let to:T = args.to;
     const options = args.options ?? {};
-    options.convertRisuFields = options.convertRisuFields ?? true
+    options.convertRisuFields = options.convertRisuFields ?? false
 
     if(!args.from){
         const checkResult = checkCharacterCardVersion(data);
