@@ -2,14 +2,21 @@ import type { CharacterCardV1, CharacterCardV2, CharacterCardV3 } from "./index.
 import { checkCharacterCardVersion } from "./check.js";
 
 type ConvertCharacterCardVersionResult<T> = T extends 'v1' ? CharacterCardV1 : T extends 'v2' ? CharacterCardV2 : CharacterCardV3;
+type ConvertCharacterCardVersionOptions = {
+    convertRisuFields?: boolean
+}
 
 export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: CharacterCardV1|CharacterCardV2|CharacterCardV3, args: {
     from?: 'v1'|'v2'|'v3',
-    to: T
+    to: T,
+    options?: ConvertCharacterCardVersionOptions
 }): ConvertCharacterCardVersionResult<T>{
 
     let from:'v1'|'v2'|'v3'
     let to:T = args.to;
+    const options = args.options ?? {};
+    options.convertRisuFields = options.convertRisuFields ?? true
+
     if(!args.from){
         const checkResult = checkCharacterCardVersion(data);
         if(checkResult === 'unknown'){
@@ -26,28 +33,28 @@ export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: Char
     }
 
     if(from === 'v1' && to === 'v2'){
-        return convertV1toV2(data as CharacterCardV1) as ConvertCharacterCardVersionResult<T>;
+        return convertV1toV2(data as CharacterCardV1, options) as ConvertCharacterCardVersionResult<T>;
     }
     if(from === 'v2' && to === 'v1'){
-        return convertV2toV1(data as CharacterCardV2) as ConvertCharacterCardVersionResult<T>;
+        return convertV2toV1(data as CharacterCardV2, options) as ConvertCharacterCardVersionResult<T>;
     }
     if(from === 'v2' && to === 'v3'){
-        return convertV2toV3(data as CharacterCardV2) as ConvertCharacterCardVersionResult<T>;
+        return convertV2toV3(data as CharacterCardV2, options) as ConvertCharacterCardVersionResult<T>;
     }
     if(from === 'v3' && to === 'v2'){
-        return convertV3toV2(data as CharacterCardV3) as ConvertCharacterCardVersionResult<T>;
+        return convertV3toV2(data as CharacterCardV3, options) as ConvertCharacterCardVersionResult<T>;
     }
     if(from === 'v1' && to === 'v3'){
-        return convertV2toV3(convertV1toV2(data as CharacterCardV1)) as ConvertCharacterCardVersionResult<T>;
+        return convertV2toV3(convertV1toV2(data as CharacterCardV1, options), options) as ConvertCharacterCardVersionResult<T>;
     }
     if(from === 'v3' && to === 'v1'){
-        return convertV2toV1(convertV3toV2(data as CharacterCardV3)) as ConvertCharacterCardVersionResult<T>;
+        return convertV2toV1(convertV3toV2(data as CharacterCardV3, options), options) as ConvertCharacterCardVersionResult<T>;
     }
 
     throw new Error('Invalid conversion');
 }
 
-function convertV1toV2(data: CharacterCardV1): CharacterCardV2{
+function convertV1toV2(data: CharacterCardV1, options:ConvertCharacterCardVersionOptions): CharacterCardV2{
     return {
         spec: 'chara_card_v2',
         spec_version: '2.0',
@@ -74,7 +81,7 @@ function convertV1toV2(data: CharacterCardV1): CharacterCardV2{
     }
 }
 
-function convertV2toV1(data:CharacterCardV2): CharacterCardV1{
+function convertV2toV1(data:CharacterCardV2, options:ConvertCharacterCardVersionOptions): CharacterCardV1{
     return {
         name: data.data.name,
         description: data.data.description,
@@ -85,7 +92,56 @@ function convertV2toV1(data:CharacterCardV2): CharacterCardV1{
     }
 }
 
-function convertV2toV3(data:CharacterCardV2): CharacterCardV3{
+function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersionOptions): CharacterCardV3{
+    let assets: {
+        type: string;
+        uri: string;
+        name: string;
+        ext: string;
+    }[] = [];
+
+    let source:string[] = []
+    
+    assets.push({
+        type: 'icon',
+        uri: 'ccdefault:',
+        name: 'main',
+        ext: 'png'
+    })
+
+    if(options.convertRisuFields){
+        const risuEmotions:[string, string][] = data.data.extensions?.risuai?.emotions
+        if(risuEmotions){
+            risuEmotions.forEach(emotion => {
+                assets.push({
+                    type: 'emotion',
+                    uri: emotion[1],
+                    name: emotion[0],
+                    ext: 'unknown'
+                })
+            })
+            delete data.data.extensions.risuai.emotions
+        }
+
+        const risuAssets:[string, string, string][] = data.data.extensions?.risuai?.additionalAssets
+        if(risuAssets){
+            risuAssets.forEach(asset => {
+                assets.push({
+                    type: 'x-risu-asset',
+                    uri: asset[1],
+                    name: asset[0],
+                    ext: asset[2] || 'unknown'
+                })
+            })
+            delete data.data.extensions.risuai.additionalAssets
+        }
+
+        const risuSource:string[] = data.data.extensions?.risuai?.source
+        if(risuSource){
+            source = risuSource
+        }
+    }
+
     return {
         spec: 'chara_card_v3',
         spec_version: '3.0',
@@ -135,15 +191,10 @@ function convertV2toV3(data:CharacterCardV2): CharacterCardV3{
             }) ?? []
           },
           //New fields in CCV3
-          assets: [{
-            type: 'icon',
-            uri: 'ccdefault:',
-            name: 'main',
-            ext: 'png'
-          }],
+          assets: assets,
           nickname: '',
           creator_notes_multilingual: {},
-          source: [],
+          source: source,
           group_only_greetings: [],
           creation_date: 0,
           modification_date: 0
@@ -151,8 +202,8 @@ function convertV2toV3(data:CharacterCardV2): CharacterCardV3{
     }
 }
 
-function convertV3toV2(data:CharacterCardV3): CharacterCardV2{
-    return {
+function convertV3toV2(data:CharacterCardV3, options:ConvertCharacterCardVersionOptions): CharacterCardV2{
+    let card:CharacterCardV2 = {
         spec: 'chara_card_v2',
         spec_version: '2.0',
         data: {
@@ -198,4 +249,37 @@ function convertV3toV2(data:CharacterCardV3): CharacterCardV2{
             extensions: data.data.extensions ?? {}
         }
     }
+
+    if(options.convertRisuFields){
+        let risuEmotions:[string, string][] = []
+        let risuAssets:[string, string, string][] = []
+        let risuSource:string[] = []
+        let assets = data.data.assets ?? []
+
+        assets.forEach(asset => {
+            if(asset.type === 'emotion'){
+                risuEmotions.push([asset.name, asset.uri])
+            }
+            else if(asset.type === 'x-risu-asset'){
+                risuAssets.push([asset.name, asset.uri, asset.ext])
+            }
+        })
+
+        if(data.data.source){
+            risuSource = data.data.source
+        }
+
+        card.data.extensions.risuai ??= {}
+        if(risuEmotions.length > 0){
+            card.data.extensions.risuai.emotions = risuEmotions
+        }
+        if(risuAssets.length > 0){
+            card.data.extensions.risuai.additionalAssets = risuAssets
+        }
+        if(risuSource.length > 0){
+            card.data.extensions.risuai.source = risuSource
+        }
+    }
+
+    return card
 }
