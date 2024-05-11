@@ -35,6 +35,7 @@ console.log(CCardLib.check(data)) // 'v2'
 #### `CCardLib.convert(data, args) -> Object`
 
 Convert the character card to the specified version.
+Both forward and backward conversion are possible. however, backward conversion may lose some data.
 
 - `data` - The data to convert.
 - `args`
