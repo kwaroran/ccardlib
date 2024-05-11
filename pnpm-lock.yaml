@@ -366,7 +366,7 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
-  eastasianwidth@0.2.0:
+  eastasianwidth@0.2.1:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
   emoji-regex@8.0.0:
@@ -957,7 +957,7 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  eastasianwidth@0.2.0: {}
+  eastasianwidth@0.2.1: {}
 
   emoji-regex@8.0.0: {}
 
@@ -1211,7 +1211,7 @@ snapshots:
 
   string-width@5.1.2:
     dependencies:
-      eastasianwidth: 0.2.0
+      eastasianwidth: 0.2.1
       emoji-regex: 9.2.2
       strip-ansi: 7.1.0
 
