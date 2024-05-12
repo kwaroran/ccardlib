@@ -110,12 +110,27 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
     })
 
     if(options.convertRisuFields){
+        const convertRisuURI = (uri:string) => {
+            if(!uri){
+                return uri
+            }
+            
+            if(uri.length === 64){
+                const hexadecimals = '0123456789abcdef'
+                if(uri.split('').every(char => hexadecimals.includes(char))){
+                    return 'risustored:' + uri
+                }
+            }
+            return uri
+        }
+
+
         const risuEmotions:[string, string][] = data.data.extensions?.risuai?.emotions
         if(risuEmotions){
             risuEmotions.forEach(emotion => {
                 assets.push({
                     type: 'emotion',
-                    uri: emotion[1],
+                    uri: convertRisuURI(emotion[1]),
                     name: emotion[0],
                     ext: 'unknown'
                 })
@@ -128,7 +143,7 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
             risuAssets.forEach(asset => {
                 assets.push({
                     type: 'x-risu-asset',
-                    uri: asset[1],
+                    uri: convertRisuURI(asset[1]),
                     name: asset[0],
                     ext: asset[2] || 'unknown'
                 })
