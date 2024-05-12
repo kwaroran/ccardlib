@@ -9,7 +9,7 @@
     "build": "tsup src/index.ts --minify --dts --format cjs,esm --out-dir dist"
   },
   "name": "@risuai/ccardlib",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "license": "MIT",
   "type": "module",
   "exports": {
