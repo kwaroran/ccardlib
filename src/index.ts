@@ -2,8 +2,10 @@ import { checkCharacterCardVersion } from './check.js'
 import { convertCharacterCardVersion } from './convert.js'
 
 export const CCardLib = {
-    check: checkCharacterCardVersion,
-    convert: convertCharacterCardVersion
+    character: {
+        check: checkCharacterCardVersion,
+        convert: convertCharacterCardVersion
+    }
 }
 
 export type CharacterCardV2 = {
