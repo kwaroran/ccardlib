@@ -12,9 +12,9 @@ pnpm install @risuai/ccardlib
 
 ## API
 
-### `CCardLib`
+### `CCardLib.character`
 
-#### `CCardLib.check(data) -> 'v1'|'v2'|'v3'|'unknown'`
+#### `CCardLib.character.check(data) -> 'v1'|'v2'|'v3'|'unknown'`
 
 Check the version of the character card.
 if the data is not a character card, it will return `'unknown'`.
@@ -29,10 +29,10 @@ const data = {
     // Character card v2 data
 }
 
-console.log(CCardLib.check(data)) // 'v2'
+console.log(CCardLib.character.check(data)) // 'v2'
 ```
 
-#### `CCardLib.convert(data, args) -> Object`
+#### `CCardLib.character.convert(data, args) -> Object`
 
 Convert the character card to the specified version.
 Both forward and backward conversion are possible. however, backward conversion may lose some data.
@@ -54,5 +54,5 @@ const data = {
     // Character card v2 data
 }
 
-console.log(CCardLib.convert(data, { to: 'v3' }))
+console.log(CCardLib.character.convert(data, { to: 'v3' }))
 ```
