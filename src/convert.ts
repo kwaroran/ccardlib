@@ -1,8 +1,53 @@
-import type { CharacterCardV1, CharacterCardV2, CharacterCardV3 } from "./index.js";
+import type { CharacterCardV1, CharacterCardV2, CharacterCardV3, CharacterBook, Lorebook } from "./index.js";
 import { checkCharacterCardVersion } from "./check.js";
+import { parseDecorators } from "./decorators.js";
+
+type ConvertLorebookVersionResult<T> = T extends 'v2' ? CharacterBook : Lorebook;
+interface ConvertLorebookVersionOptions {
+    removeDecorators?: boolean
+}
+
+export function convertLorebookVersion<T extends 'v2'|'v3'>(data: CharacterBook|Lorebook, args: {
+    from?: 'v2'|'v3',
+    to: T,
+    options?: ConvertLorebookVersionOptions
+}): ConvertLorebookVersionResult<T>{
+
+    let from:'v2'|'v3'
+    let to:T = args.to;
+    const options = args.options ?? {};
+
+    if(!args.from){
+        if((data as any).spec === 'chara_book_v2'){
+            from = 'v2'
+        }
+        else if((data as any).spec === 'chara_book_v3'){
+            from = 'v3'
+        }
+        else{
+            throw new Error('Invalid lorebook data');
+        }
+    }
+    else{
+        from = args.from;
+    }
+
+    if(from === to){
+        return data as ConvertLorebookVersionResult<T>;
+    }
+
+    if(from === 'v2' && to === 'v3'){
+        return convertV2LBtoV3(data as CharacterBook, options) as ConvertLorebookVersionResult<T>;
+    }
+    if(from === 'v3' && to === 'v2'){
+        return convertV3LBtoV2(data as Lorebook, options) as ConvertLorebookVersionResult<T>;
+    }
+
+    throw new Error('Invalid conversion');
+}
 
 type ConvertCharacterCardVersionResult<T> = T extends 'v1' ? CharacterCardV1 : T extends 'v2' ? CharacterCardV2 : CharacterCardV3;
-type ConvertCharacterCardVersionOptions = {
+interface ConvertCharacterCardVersionOptions extends ConvertLorebookVersionOptions{
     convertRisuFields?: boolean
 }
 
@@ -92,6 +137,36 @@ function convertV2toV1(data:CharacterCardV2, options:ConvertCharacterCardVersion
     }
 }
 
+function convertV2LBtoV3(data:CharacterBook, options:ConvertLorebookVersionOptions): Lorebook{
+    return {
+        name: data?.name,
+        description: data?.description,
+        scan_depth: data?.scan_depth,
+        token_budget: data?.token_budget,
+        recursive_scanning: data?.recursive_scanning,
+        extensions: data?.extensions ?? {},
+        entries: data?.entries?.map(entry => {
+            return {
+                keys: entry.keys ?? [],
+                content: entry.content ?? '',
+                extensions: entry.extensions ?? {},
+                enabled: entry.enabled ?? false,
+                insertion_order: entry.insertion_order ?? 100,
+                case_sensitive: entry.case_sensitive,
+                use_regex: false,
+                constant: entry.constant,
+                name: entry.name,
+                priority: entry.priority,
+                id: entry.id,
+                comment: entry.comment,
+                selective: entry.selective,
+                secondary_keys: entry.secondary_keys,
+                position: entry.position,
+            }
+        }) ?? []
+    }
+}
+
 function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersionOptions): CharacterCardV3{
     let assets: {
         type: string;
@@ -157,6 +232,8 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
         }
     }
 
+
+    const book = data.data.character_book
     return {
         spec: 'chara_card_v3',
         spec_version: '3.0',
@@ -178,33 +255,7 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
       
           //Changes from CCV2
           creator_notes: data.data.creator_notes,
-          character_book: {
-            name: data.data.character_book?.name,
-            description: data.data.character_book?.description,
-            scan_depth: data.data.character_book?.scan_depth ?? 0,
-            token_budget: data.data.character_book?.token_budget ?? 0,
-            recursive_scanning: data.data.character_book?.recursive_scanning ?? false,
-            extensions: data.data.character_book?.extensions ?? {},
-            entries: data.data.character_book?.entries?.map(entry => {
-                return {
-                    keys: entry.keys ?? [],
-                    content: entry.content ?? '',
-                    extensions: entry.extensions ?? {},
-                    enabled: entry.enabled ?? false,
-                    insertion_order: entry.insertion_order ?? 100,
-                    case_sensitive: entry.case_sensitive,
-                    use_regex: false,
-                    constant: entry.constant,
-                    name: entry.name,
-                    priority: entry.priority,
-                    id: entry.id,
-                    comment: entry.comment,
-                    selective: entry.selective,
-                    secondary_keys: entry.secondary_keys,
-                    position: entry.position,
-                }
-            }) ?? []
-          },
+          character_book: book ? convertV2LBtoV3(book, options) : undefined,
           //New fields in CCV3
           assets: assets,
           nickname: '',
@@ -217,7 +268,43 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
     }
 }
 
+function convertV3LBtoV2(data:Lorebook, options:ConvertLorebookVersionOptions): CharacterBook{
+
+    const convertContents = (entry:string) => {
+        return parseDecorators(entry, () => {})
+    }
+
+    return {
+        name: data?.name,
+        description: data?.description,
+        scan_depth: data?.scan_depth,
+        token_budget: data?.token_budget,
+        recursive_scanning: data?.recursive_scanning,
+        extensions: data?.extensions ?? {},
+        entries: data?.entries?.map(entry => {
+            return {
+                keys: entry.keys ?? [],
+                content: convertContents(entry.content) ?? '',
+                extensions: entry.extensions ?? {},
+                enabled: entry.enabled ?? false,
+                insertion_order: entry.insertion_order ?? 100,
+                case_sensitive: entry.case_sensitive,
+                name: entry.name,
+                priority: entry.priority,
+                id: entry.id,
+                comment: entry.comment,
+                selective: entry.selective,
+                secondary_keys: entry.secondary_keys,
+                position: entry.position,
+                constant: entry.constant,
+            }
+        }) ?? []
+    }
+}
+
 function convertV3toV2(data:CharacterCardV3, options:ConvertCharacterCardVersionOptions): CharacterCardV2{
+    const book = data.data.character_book
+
     let card:CharacterCardV2 = {
         spec: 'chara_card_v2',
         spec_version: '2.0',
@@ -232,32 +319,7 @@ function convertV3toV2(data:CharacterCardV3, options:ConvertCharacterCardVersion
             system_prompt: data.data.system_prompt,
             post_history_instructions: data.data.post_history_instructions,
             alternate_greetings: data.data.alternate_greetings ?? [],
-            character_book: {
-                name: data.data.character_book?.name,
-                description: data.data.character_book?.description,
-                scan_depth: data.data.character_book?.scan_depth ?? 0,
-                token_budget: data.data.character_book?.token_budget ?? 0,
-                recursive_scanning: data.data.character_book?.recursive_scanning ?? false,
-                extensions: data.data.character_book?.extensions ?? {},
-                entries: data.data.character_book?.entries?.map(entry => {
-                    return {
-                        keys: entry.keys ?? [],
-                        content: entry.content ?? '',
-                        extensions: entry.extensions ?? {},
-                        enabled: entry.enabled ?? false,
-                        insertion_order: entry.insertion_order ?? 100,
-                        case_sensitive: entry.case_sensitive,
-                        name: entry.name,
-                        priority: entry.priority,
-                        id: entry.id,
-                        comment: entry.comment,
-                        selective: entry.selective,
-                        secondary_keys: entry.secondary_keys,
-                        position: entry.position,
-                        constant: entry.constant,
-                    }
-                }) ?? []
-            },
+            character_book: book ? convertV3LBtoV2(book, options) : undefined,
             tags: data.data.tags ?? [],
             creator: data.data.creator,
             character_version: data.data.character_version,

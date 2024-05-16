@@ -1,10 +1,17 @@
 import { checkCharacterCardVersion } from './check.js'
-import { convertCharacterCardVersion } from './convert.js'
+import { convertCharacterCardVersion, convertLorebookVersion } from './convert.js'
+import { parseDecorators } from './decorators.js'
 
 export const CCardLib = {
     character: {
         check: checkCharacterCardVersion,
         convert: convertCharacterCardVersion
+    },
+    lorebook: {
+        convert: convertLorebookVersion
+    },
+    decorator:{
+        parse: parseDecorators
     }
 }
 
