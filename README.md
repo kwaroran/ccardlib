@@ -18,6 +18,7 @@ pnpm install @risuai/ccardlib
 
 Check the version of the character card.
 if the data is not a character card, it will return `'unknown'`.
+This can also be used to check if the data is a valid character card.
 
 - `data` - The data to check.
 
@@ -81,4 +82,47 @@ const data = {
 }
 
 console.log(CCardLib.character.convert(data, { to: 'v3' }))
+```
+
+### `CCardLib.decorator.parse(data, hook) -> String`
+
+Parse the lorebook content which contains decorators. decorators will call the hook function.
+fallback decorators `@@@` would only be called when the above decorators is ignored.
+
+- `data` - The lorebook content. must be a string.
+- `hook(name, args)` - The hook function. it will be called when the decorator is found. if the hook function returns `false`, the decorator will be treated as a ignored decorator, and the fallback decorator will be called.
+  - `name` - The name of the decorator without the `@` symbol. it will be a string.
+  - `args` - The arguments of the decorator. it will be an array of strings.
+
+example:
+
+```typescript
+
+import { CCardLib } from '@risuai/ccardlib'
+
+
+const data = `
+@@decorator arg1,arg2
+@@@fallback arg
+@@decorator2
+@@@fallback2
+`
+
+const result = CCardLib.decorator.parse(data, (name, args) => {
+  console.log(`${name} is called with args: ${args.join(', ')}`)
+  if (name === 'decorator') {
+    console.log(`decorator(${args.join(', ')})`) //decorator's effect
+    return
+  }
+  if (name === 'fallback' || name === 'fallback2') {
+    return
+  }
+  return false // return false to call fallback decorator
+})
+
+console.log(result)
+// decorator is called with args: arg1, arg2
+// decorator(arg1, arg2)
+// decorator2 is called with args:
+// fallback2 is called with args:
 ```
