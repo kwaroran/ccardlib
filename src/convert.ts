@@ -74,6 +74,9 @@ export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: Char
     }
 
     if(from === to){
+        if(to === 'v3'){
+            return postProcessV3(data as CharacterCardV3, options) as ConvertCharacterCardVersionResult<T>;
+        }
         return data as ConvertCharacterCardVersionResult<T>;
     }
 
@@ -168,21 +171,58 @@ function convertV2LBtoV3(data:CharacterBook, options:ConvertLorebookVersionOptio
 }
 
 function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersionOptions): CharacterCardV3{
+    const book = data.data.character_book
+    return postProcessV3({
+        spec: 'chara_card_v3',
+        spec_version: '3.0',
+        data: {
+          // fields from CCV2
+          name: data.data.name,
+          description: data.data.description,
+          tags: data.data.tags ?? [],
+          creator: data.data.creator,
+          character_version: data.data.character_version,
+          mes_example: data.data.mes_example,
+          extensions: data.data.extensions,
+          system_prompt: data.data.system_prompt,
+          post_history_instructions: data.data.post_history_instructions,
+          first_mes: data.data.first_mes,
+          alternate_greetings: data.data.alternate_greetings,
+          personality: data.data.personality,
+          scenario: data.data.scenario,
+      
+          //Changes from CCV2
+          creator_notes: data.data.creator_notes,
+          character_book: book ? convertV2LBtoV3(book, options) : undefined,
+          //New fields in CCV3
+          assets: [{
+            type: 'icon',
+            uri: 'ccdefault:',
+            name: 'main',
+            ext: 'png'
+          }],
+          nickname: '',
+          creator_notes_multilingual: {},
+          source: [],
+          group_only_greetings: [],
+          creation_date: 0,
+          modification_date: 0
+        }
+    }, options)
+}
+
+function postProcessV3(data:CharacterCardV3, options:ConvertCharacterCardVersionOptions):CharacterCardV3{
+
     let assets: {
         type: string;
         uri: string;
         name: string;
         ext: string;
-    }[] = [];
+    }[] = data.data.assets ?? []
 
     let source:string[] = []
-    
-    assets.push({
-        type: 'icon',
-        uri: 'ccdefault:',
-        name: 'main',
-        ext: 'png'
-    })
+
+    source = data.data.source ?? []
 
     if(options.convertRisuFields){
         const convertRisuURI = (uri:string) => {
@@ -228,44 +268,15 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
 
         const risuSource:string[] = data.data.extensions?.risuai?.source
         if(risuSource){
-            source = risuSource
+            source = source.concat(risuSource).filter((value, index, self) => self.indexOf(value) === index)
+            delete data.data.extensions.risuai.source
         }
     }
 
+    data.data.assets = assets
+    data.data.source = source
 
-    const book = data.data.character_book
-    return {
-        spec: 'chara_card_v3',
-        spec_version: '3.0',
-        data: {
-          // fields from CCV2
-          name: data.data.name,
-          description: data.data.description,
-          tags: data.data.tags ?? [],
-          creator: data.data.creator,
-          character_version: data.data.character_version,
-          mes_example: data.data.mes_example,
-          extensions: data.data.extensions,
-          system_prompt: data.data.system_prompt,
-          post_history_instructions: data.data.post_history_instructions,
-          first_mes: data.data.first_mes,
-          alternate_greetings: data.data.alternate_greetings,
-          personality: data.data.personality,
-          scenario: data.data.scenario,
-      
-          //Changes from CCV2
-          creator_notes: data.data.creator_notes,
-          character_book: book ? convertV2LBtoV3(book, options) : undefined,
-          //New fields in CCV3
-          assets: assets,
-          nickname: '',
-          creator_notes_multilingual: {},
-          source: source,
-          group_only_greetings: [],
-          creation_date: 0,
-          modification_date: 0
-        }
-    }
+    return data
 }
 
 function convertV3LBtoV2(data:Lorebook, options:ConvertLorebookVersionOptions): CharacterBook{
