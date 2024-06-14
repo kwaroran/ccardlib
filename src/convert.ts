@@ -282,6 +282,9 @@ function postProcessV3(data:CharacterCardV3, options:ConvertCharacterCardVersion
 function convertV3LBtoV2(data:Lorebook, options:ConvertLorebookVersionOptions): CharacterBook{
 
     const convertContents = (entry:string) => {
+        if(!options.removeDecorators){
+            return entry
+        }
         return parseDecorators(entry, () => {})
     }
 
