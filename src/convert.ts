@@ -18,20 +18,7 @@ export function convertLorebookVersion<T extends 'v2'|'v3'>(data: CharacterBook|
     let to:T = args.to;
     const options = resolveLorebookOptions(args.options);
 
-    if(!args.from){
-        if((data as any).spec === 'chara_book_v2'){
-            from = 'v2'
-        }
-        else if((data as any).spec === 'chara_book_v3'){
-            from = 'v3'
-        }
-        else{
-            throw new Error('Invalid lorebook data');
-        }
-    }
-    else{
-        from = args.from;
-    }
+    from = args.from ?? inferLorebookVersion(data, to);
 
     if(from === to){
         return data as ConvertLorebookVersionResult<T>;
@@ -382,6 +369,29 @@ function resolveLorebookOptions(options:ConvertLorebookVersionOptions = {}):Reso
     return {
         removeDecorators: options.removeDecorators ?? true
     }
+}
+
+function inferLorebookVersion<T extends 'v2'|'v3'>(data:CharacterBook|Lorebook, to:T):'v2'|'v3'{
+    if((data as any).spec === 'chara_book_v2'){
+        return 'v2'
+    }
+    if((data as any).spec === 'chara_book_v3'){
+        return 'v3'
+    }
+
+    if(!data || typeof data !== 'object' || !Array.isArray((data as any).entries)){
+        throw new Error('Invalid lorebook data');
+    }
+
+    if((data as any).entries.some((entry:any) => entry && typeof entry === 'object' && 'use_regex' in entry)){
+        return 'v3'
+    }
+
+    if((data as any).entries.length > 0){
+        return 'v2'
+    }
+
+    return to === 'v2' ? 'v3' : 'v2'
 }
 
 function resolveCharacterOptions(options:ConvertCharacterCardVersionOptions = {}):ResolvedConvertCharacterCardVersionOptions{
