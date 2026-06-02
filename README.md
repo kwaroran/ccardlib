@@ -41,7 +41,7 @@ Both forward and backward conversion are possible. however, backward conversion 
 - `data` - The data to convert.
 - `args`
   - `to` - The version to convert to. must be `'v1'`, `'v2'`, or `'v3'`.
-  - `from` - The version to convert from. must be `'v1'`, `'v2'`, or `'v3'`. (optional)
+  - `from` - The version to convert from. must be `'v1'`, `'v2'`, or `'v3'`. if omitted, it will be inferred from the card data. (optional)
   - `options` - The options for the conversion. (optional)
     - `convertRisuFields` - Convert out of spec fields that are specific to RisuAI. (default: `false`)
     - `removeDecorators` - Remove decorators from lorebook if `to` is `'v2'`. This is recommended on v3 spec. (default: `true`)
@@ -67,7 +67,7 @@ Both forward and backward conversion are possible. however, backward conversion 
 - `data` - The data to convert.
 - `args`
   - `to` - The version to convert to. must be `'v2'`, or `'v3'`.
-  - `from` - The version to convert from. must be `'v2'`, or `'v3'`. (optional)
+  - `from` - The version to convert from. must be `'v2'`, or `'v3'`. if omitted, it will be inferred from the lorebook data. (optional)
   - `options` - The options for the conversion. (optional)
     - `removeDecorators` - Remove decorators from lorebook if `to` is `'v2'`. This is recommended on v3 spec. (default: `true`)
 
@@ -81,7 +81,7 @@ const data = {
     // Lorebook v2 data
 }
 
-console.log(CCardLib.character.convert(data, { to: 'v3' }))
+console.log(CCardLib.lorebook.convert(data, { to: 'v3' }))
 ```
 
 ### `CCardLib.decorator.parse(data, hook) -> String`
