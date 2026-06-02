@@ -6,6 +6,7 @@ type ConvertLorebookVersionResult<T> = T extends 'v2' ? CharacterBook : Lorebook
 interface ConvertLorebookVersionOptions {
     removeDecorators?: boolean
 }
+type ResolvedConvertLorebookVersionOptions = Required<ConvertLorebookVersionOptions>;
 
 export function convertLorebookVersion<T extends 'v2'|'v3'>(data: CharacterBook|Lorebook, args: {
     from?: 'v2'|'v3',
@@ -15,7 +16,7 @@ export function convertLorebookVersion<T extends 'v2'|'v3'>(data: CharacterBook|
 
     let from:'v2'|'v3'
     let to:T = args.to;
-    const options = args.options ?? {};
+    const options = resolveLorebookOptions(args.options);
 
     if(!args.from){
         if((data as any).spec === 'chara_book_v2'){
@@ -50,6 +51,7 @@ type ConvertCharacterCardVersionResult<T> = T extends 'v1' ? CharacterCardV1 : T
 interface ConvertCharacterCardVersionOptions extends ConvertLorebookVersionOptions{
     convertRisuFields?: boolean
 }
+type ResolvedConvertCharacterCardVersionOptions = Required<ConvertCharacterCardVersionOptions>;
 
 export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: CharacterCardV1|CharacterCardV2|CharacterCardV3, args: {
     from?: 'v1'|'v2'|'v3',
@@ -59,8 +61,7 @@ export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: Char
 
     let from:'v1'|'v2'|'v3'
     let to:T = args.to;
-    const options = args.options ?? {};
-    options.convertRisuFields = options.convertRisuFields ?? false
+    const options = resolveCharacterOptions(args.options);
 
     if(!args.from){
         const checkResult = checkCharacterCardVersion(data);
@@ -102,7 +103,7 @@ export function convertCharacterCardVersion<T extends 'v1'|'v2'|'v3'>(data: Char
     throw new Error('Invalid conversion');
 }
 
-function convertV1toV2(data: CharacterCardV1, options:ConvertCharacterCardVersionOptions): CharacterCardV2{
+function convertV1toV2(data: CharacterCardV1, options:ResolvedConvertCharacterCardVersionOptions): CharacterCardV2{
     return {
         spec: 'chara_card_v2',
         spec_version: '2.0',
@@ -129,7 +130,7 @@ function convertV1toV2(data: CharacterCardV1, options:ConvertCharacterCardVersio
     }
 }
 
-function convertV2toV1(data:CharacterCardV2, options:ConvertCharacterCardVersionOptions): CharacterCardV1{
+function convertV2toV1(data:CharacterCardV2, options:ResolvedConvertCharacterCardVersionOptions): CharacterCardV1{
     return {
         name: data.data.name,
         description: data.data.description,
@@ -140,7 +141,7 @@ function convertV2toV1(data:CharacterCardV2, options:ConvertCharacterCardVersion
     }
 }
 
-function convertV2LBtoV3(data:CharacterBook, options:ConvertLorebookVersionOptions): Lorebook{
+function convertV2LBtoV3(data:CharacterBook, options:ResolvedConvertLorebookVersionOptions): Lorebook{
     return {
         name: data?.name,
         description: data?.description,
@@ -170,7 +171,7 @@ function convertV2LBtoV3(data:CharacterBook, options:ConvertLorebookVersionOptio
     }
 }
 
-function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersionOptions): CharacterCardV3{
+function convertV2toV3(data:CharacterCardV2, options:ResolvedConvertCharacterCardVersionOptions): CharacterCardV3{
     const book = data.data.character_book
     return postProcessV3({
         spec: 'chara_card_v3',
@@ -211,18 +212,19 @@ function convertV2toV3(data:CharacterCardV2, options:ConvertCharacterCardVersion
     }, options)
 }
 
-function postProcessV3(data:CharacterCardV3, options:ConvertCharacterCardVersionOptions):CharacterCardV3{
+function postProcessV3(input:CharacterCardV3, options:ResolvedConvertCharacterCardVersionOptions):CharacterCardV3{
+    const data = cloneJson(input);
 
     let assets: {
         type: string;
         uri: string;
         name: string;
         ext: string;
-    }[] = data.data.assets ?? []
+    }[] = [...(data.data.assets ?? [])]
 
     let source:string[] = []
 
-    source = data.data.source ?? []
+    source = [...(data.data.source ?? [])]
 
     if(options.convertRisuFields){
         const convertRisuURI = (uri:string) => {
@@ -279,7 +281,7 @@ function postProcessV3(data:CharacterCardV3, options:ConvertCharacterCardVersion
     return data
 }
 
-function convertV3LBtoV2(data:Lorebook, options:ConvertLorebookVersionOptions): CharacterBook{
+function convertV3LBtoV2(data:Lorebook, options:ResolvedConvertLorebookVersionOptions): CharacterBook{
 
     const convertContents = (entry:string) => {
         if(!options.removeDecorators){
@@ -316,7 +318,8 @@ function convertV3LBtoV2(data:Lorebook, options:ConvertLorebookVersionOptions): 
     }
 }
 
-function convertV3toV2(data:CharacterCardV3, options:ConvertCharacterCardVersionOptions): CharacterCardV2{
+function convertV3toV2(input:CharacterCardV3, options:ResolvedConvertCharacterCardVersionOptions): CharacterCardV2{
+    const data = cloneJson(input);
     const book = data.data.character_book
 
     let card:CharacterCardV2 = {
@@ -373,4 +376,24 @@ function convertV3toV2(data:CharacterCardV3, options:ConvertCharacterCardVersion
     }
 
     return card
+}
+
+function resolveLorebookOptions(options:ConvertLorebookVersionOptions = {}):ResolvedConvertLorebookVersionOptions{
+    return {
+        removeDecorators: options.removeDecorators ?? true
+    }
+}
+
+function resolveCharacterOptions(options:ConvertCharacterCardVersionOptions = {}):ResolvedConvertCharacterCardVersionOptions{
+    return {
+        ...resolveLorebookOptions(options),
+        convertRisuFields: options.convertRisuFields ?? false
+    }
+}
+
+function cloneJson<T>(data:T):T{
+    if(data === undefined){
+        return data;
+    }
+    return JSON.parse(JSON.stringify(data));
 }
