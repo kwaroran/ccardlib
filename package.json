@@ -6,7 +6,14 @@
   },
   "dependencies": {},
   "scripts": {
+    "check": "tsc --noEmit",
     "build": "tsup src/index.ts --minify --dts --format cjs,esm --out-dir dist"
+  },
+  "pnpm": {
+    "overrides": {
+      "eastasianwidth": "0.3.0",
+      "string-width@5.1.2>eastasianwidth": "0.3.0"
+    }
   },
   "name": "@risuai/ccardlib",
   "version": "0.4.2",
