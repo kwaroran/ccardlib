@@ -77,7 +77,7 @@ export type CharacterCardV1 = {
 
 export interface CharacterCardV3{
     spec: 'chara_card_v3'
-    spec_version: '3.0'
+    spec_version: '3.0' | `3.${string}` // 3.1 and later minor versions add no field to `data`
     data: {
       // fields from CCV2
       name: string
@@ -86,7 +86,7 @@ export interface CharacterCardV3{
       creator: string
       character_version: string
       mes_example: string
-      extensions: Record<string, any>
+      extensions: Record<string, any> & CharacterCardV3StandardExtensions
       system_prompt: string
       post_history_instructions: string
       first_mes: string
@@ -127,7 +127,7 @@ export type Lorebook = {
 export type LorebookEntry = {
     keys: Array<string>
     content: string
-    extensions: Record<string, any>
+    extensions: Record<string, any> & LorebookEntryStandardExtensions
     enabled: boolean
     insertion_order: number
     case_sensitive?: boolean
@@ -140,4 +140,56 @@ export type LorebookEntry = {
     selective?: boolean
     secondary_keys?: Array<string>
     position?: 'before_char' | 'after_char'
+}
+
+// Standard `extensions` keys of Character Card V3.1 (SPEC_V3.md, "Standard `extensions` keys").
+// Every key is optional; an application keeps the ones it does not use when it exports a card.
+
+export interface CharacterCardV3StandardExtensions {
+    localizations?: CharacterCardV3Localizations
+    asset_info?: Array<CharacterCardV3AssetInfo>
+}
+
+export interface CharacterCardV3Localizations {
+    language?: string // BCP 47 tag of the base fields
+    locales?: Record<string /* BCP 47 tag */, CharacterCardV3Localization>
+}
+
+export interface CharacterCardV3Localization {
+    name?: string
+    nickname?: string
+    description?: string
+    personality?: string
+    scenario?: string
+    first_mes?: string
+    alternate_greetings?: Array<string> // by index of the base array
+    group_only_greetings?: Array<string> // by index of the base array
+    mes_example?: string
+    system_prompt?: string
+    post_history_instructions?: string
+    creator_notes?: string
+    meta?: {
+        origin: 'author' | 'machine' | 'community'
+        translator?: string
+        based_on?: number // modification_date when the locale was last brought up to date
+    }
+}
+
+export interface CharacterCardV3AssetInfo {
+    type: string // matches the asset with this type and name
+    name: string
+    lang?: string // BCP 47 tag
+    variant_of?: string // with lang: replaces the asset of the same type with this name
+}
+
+export interface LorebookEntryStandardExtensions {
+    localizations?: Record<string /* BCP 47 tag */, LorebookEntryLocalization>
+}
+
+export interface LorebookEntryLocalization {
+    keys?: Array<string>
+    secondary_keys?: Array<string>
+    content?: string // never holds decorators
+    name?: string
+    comment?: string
 }
